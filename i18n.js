@@ -1,0 +1,346 @@
+/* ============================================================
+   i18n + WhatsApp wiring + small UI behavior
+   ------------------------------------------------------------
+   EDIT THESE FIRST — your contact details:
+   ============================================================ */
+const CONFIG = {
+  // WhatsApp number, international format, digits only (no +, spaces, dashes).
+  WHATSAPP_NUMBER: "905061129172",
+  PHONE_DISPLAY:   "+90 506 112 91 72",
+  ADDRESS_TR:      "R Plaza Dent Ağız ve Diş Sağlığı Polikliniği — Odunluk Mah. Akpınar Cad. No 21 C/1, Nilüfer / Bursa",
+  ADDRESS_EN:      "R Plaza Dent Ağız ve Diş Sağlığı Polikliniği — Odunluk Mah. Akpınar Cad. No 21 C/1, Nilüfer / Bursa",
+  INSTAGRAM_URL:   "https://instagram.com/dr_kubikbc",
+  // Contact-form endpoint. Create a free form at https://formspree.io, then paste
+  // its endpoint here (looks like https://formspree.io/f/abcdwxyz).
+  FORMSPREE_ENDPOINT: "https://formspree.io/f/xjgddrzg",
+};
+
+const WA_MSG = {
+  appointment: { tr: "Merhaba, randevu almak istiyorum.", en: "Hello, I'd like to book an appointment." },
+  courses:     { tr: "Merhaba, eğitimleriniz hakkında bilgi almak istiyorum.", en: "Hello, I'd like information about your courses." },
+};
+function waLink(intent, lang) {
+  const msg = (WA_MSG[intent] || WA_MSG.appointment)[lang] || WA_MSG.appointment.tr;
+  return `https://wa.me/${CONFIG.WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
+}
+
+/* ============================================================ DICTIONARY */
+const I18N = {
+  tr: {
+    "nav.treatments": "Tedaviler",
+    "nav.about": "Hakkımda",
+    "nav.journey": "Süreç",
+    "nav.courses": "Eğitimler",
+    "nav.blog": "Blog",
+    "nav.contact": "İletişim",
+    "cta.appointment": "Randevu Al",
+    "cta.book": "Randevu Oluştur",
+
+    "hero.eyebrow": "Protetik Diş Tedavisi Uzmanı",
+    "hero.h1": "Kubilay Barış Çiçek",
+    "hero.sub": "Estetik ve dijital diş hekimliği",
+    "hero.cta1": "Randevu Al",
+    "hero.cta2": "Tedaviler",
+    "hero.scroll": "Keşfet",
+    "tagline": "Gülüş Tasarımı &nbsp;·&nbsp; Çene Eklem Bozuklukları &nbsp;·&nbsp; Horlama Protezi",
+
+    "intro.kicker": "Yaklaşım",
+    "intro.h2": "Tanı, planlama ve <em>uygulama.</em>",
+    "intro.p1": "Her tedavi ayrıntılı bir muayeneyle başlar. Dijital planlama, mikroskop altında çalışma ve diş laboratuvarıyla iş birliği, tedavi sürecinin parçalarıdır.",
+    "intro.p2": "Estetiğin yanı sıra çiğneme fonksiyonu ve çene ekleminin sağlığı da değerlendirilir.",
+    "intro.cta": "Randevu Al",
+
+    "treat.kicker": "Tedaviler",
+    "treat.h2": "Başlıca <em>tedavi alanları.</em>",
+    "treat.aside": "Aşağıdaki konularda muayene ve tedavi yapılır. Ayrıntılar için randevu oluşturabilirsiniz.",
+    "t1.title": "Gülüş Tasarımı",
+    "t1.desc": "Dişlerin biçimi, rengi ve diziliminin dijital ortamda planlanmasıdır. Uygulamadan önce plan birlikte değerlendirilir.",
+    "t2.title": "Çene Eklem Bozuklukları",
+    "t2.desc": "Çene ekleminde ağrı, ses, kilitlenme ve diş sıkma gibi durumların muayenesi ve tedavisidir.",
+    "t3.title": "Horlama Protezi",
+    "t3.desc": "Horlama ve hafif uyku apnesinde kullanılan, ağız içine takılan apareylerin hazırlanmasıdır. Uygunluk muayeneyle belirlenir.",
+    "treat.more": "Randevu al",
+
+    "about.kicker": "Hakkında",
+    "about.h2": "Kubilay Barış <em>Çiçek</em>",
+    "about.p1": "Protetik diş tedavisi uzmanı olan Kubilay Barış Çiçek; estetik, dijital ve mikroskobik diş hekimliği alanlarında çalışmaktadır.",
+    "about.p2": "Klinik çalışmalarının yanı sıra ulusal ve uluslararası kongrelerde yer alır ve meslektaşlarına yönelik eğitimler düzenler.",
+    "about.cta": "Randevu Al",
+    "about.ig": "@dr_kubikbc",
+
+    "journey.kicker": "Tedavi Süreci",
+    "journey.h2": "Muayeneden <em>kontrole</em> kadar süreç.",
+    "j1.t": "Muayene", "j1.d": "Şikâyetlerin dinlenmesi, ağız içi inceleme ve değerlendirme.",
+    "j2.t": "Görüntüleme ve analiz", "j2.d": "Gerektiğinde röntgen, fotoğraf ve dijital tarama ile durumun belgelenmesi.",
+    "j3.t": "Tedavi planı", "j3.d": "Seçenekler, süre ve maliyetin paylaşılması.",
+    "j4.t": "Dijital planlama", "j4.d": "Uygulanacak planın dijital ortamda hazırlanması ve değerlendirilmesi.",
+    "j5.t": "Uygulama", "j5.d": "Planlanan tedavinin mikroskop altında uygulanması.",
+    "j6.t": "Kontrol ve uyum", "j6.d": "Tedavinin işlevi ve uyumunun birlikte kontrol edilmesi.",
+    "j7.t": "Takip", "j7.d": "Planlı kontroller ve bakım önerileri.",
+    "journey.foot": "Her aşamada bilgilendirme yapılır.",
+
+    "edu.kicker": "Meslektaşlara Eğitim",
+    "edu.h2": "Meslektaşlara yönelik <em>eğitimler.</em>",
+    "edu.p": "Ulusal ve uluslararası kongrelerde yer alıyor, diş hekimlerine yönelik eğitimler düzenliyorum. Program tarih ve içerikleri için iletişime geçebilirsiniz.",
+    "ep1": "Uygulamalı, küçük gruplu oturumlar",
+    "ep2": "Estetik ve dijital diş hekimliği içerikleri",
+    "ep3": "Tarih ve katılım için bilgilendirme",
+    "edu.cta": "İletişime geç",
+
+    "results.kicker": "Klinik",
+    "results.h2": "Çalışma alanından <em>görüntüler.</em>",
+    "results.p": "Klinik ortamı ve çalışma sürecinden kareler.",
+    "results.cap": "Güncel paylaşımlar Instagram'da",
+
+    "contact.kicker": "İletişim",
+    "contact.h2": "İletişim ve <em>randevu.</em>",
+    "contact.p": "Randevu ve sorularınız için WhatsApp veya telefon ile ulaşabilirsiniz.",
+    "ci.clinic": "Klinik", "ci.phone": "Telefon", "ci.hours": "Çalışma saatleri",
+    "ci.hours.val": "Pzt–Cmt · 10:00–18:00",
+    "form.title": "Randevu talebi",
+    "form.sub": "Bilgilerinizi bırakın, size dönüş yapılsın.",
+    "form.name": "Ad Soyad", "form.name.ph": "Adınız ve soyadınız",
+    "form.phone": "Telefon", "form.phone.ph": "05XX XXX XX XX",
+    "form.subject": "Konu",
+    "opt1": "Gülüş tasarımı", "opt2": "Çene eklem bozuklukları", "opt3": "Horlama protezi", "opt4": "Genel muayene", "opt5": "Eğitim / kurs",
+    "form.note": "Notunuz", "form.note.ph": "Kısaca ne yaptırmak istediğinizi yazabilirsiniz.",
+    "form.submit": "Gönder",
+    "form.sending": "Gönderiliyor…",
+    "form.success": "Teşekkürler! Talebiniz alındı, en kısa sürede dönüş yapılacaktır.",
+    "form.error": "Gönderilemedi. Lütfen WhatsApp veya telefon ile ulaşın.",
+    "form.kvkk": "Gönderdiğiniz bilgiler yalnızca randevu için kullanılır — KVKK kapsamında korunur.",
+
+    "footer.tagline": "Estetik ve dijital diş hekimliği. Gülüş tasarımı, çene eklem bozuklukları ve horlama protezi.",
+    "footer.menu": "Menü", "footer.contact": "İletişim", "footer.book": "Randevu al",
+    "footer.rights": "Tüm hakları saklıdır.",
+    "blog.eyebrow": "Blog",
+    "blog.title": "Yazılar ve <em>notlar.</em>",
+    "blog.sub": "Diş hekimliği, ağız sağlığı ve klinik notlar üzerine yazılar.",
+    "blog.new": "Yeni Yazı",
+    "blog.empty": "Henüz yazı eklenmedi.",
+    "blog.empty.sub": "İlk yazınızı eklemek için “Yeni Yazı” düğmesini kullanın.",
+    "blog.read": "Yazıyı oku",
+    "blog.back": "Yazılara dön",
+    "blog.f.title": "Başlık",
+    "blog.f.titleph": "Yazı başlığı",
+    "blog.f.excerpt": "Kısa özet (isteğe bağlı)",
+    "blog.f.excerptph": "Kartta görünecek bir-iki cümle",
+    "blog.f.body": "İçerik",
+    "blog.f.bodyph": "Yazınızı buraya yazın… Boş satır yeni paragraf oluşturur.",
+    "blog.f.image": "Kapak görseli (isteğe bağlı)",
+    "blog.f.imagepick": "Görsel seç",
+    "blog.f.save": "Yayınla",
+    "blog.f.update": "Güncelle",
+    "blog.f.cancel": "Vazgeç",
+    "blog.edit": "Düzenle",
+    "blog.delete": "Sil",
+    "blog.delete.confirm": "Bu yazı silinsin mi?",
+    "blog.manage": "Yönetim",
+    "blog.manage.on": "Yönetim açık",
+    "wa.float": "WhatsApp",
+  },
+  en: {
+    "nav.treatments": "Treatments",
+    "nav.about": "About",
+    "nav.journey": "Process",
+    "nav.courses": "Courses",
+    "nav.blog": "Blog",
+    "nav.contact": "Contact",
+    "cta.appointment": "Book Appointment",
+    "cta.book": "Book a Reservation",
+
+    "hero.eyebrow": "Specialist in Prosthetic Dentistry",
+    "hero.h1": "Kubilay Barış Çiçek",
+    "hero.sub": "Aesthetic and digital dentistry",
+    "hero.cta1": "Book Appointment",
+    "hero.cta2": "Treatments",
+    "hero.scroll": "Explore",
+    "tagline": "Smile Design &nbsp;·&nbsp; Temporomandibular Disorders &nbsp;·&nbsp; Snoring Appliance",
+
+    "intro.kicker": "Approach",
+    "intro.h2": "Diagnosis, planning and <em>treatment.</em>",
+    "intro.p1": "Every treatment begins with a detailed examination. Digital planning, work under the microscope and collaboration with the dental laboratory are parts of the treatment process.",
+    "intro.p2": "Beyond aesthetics, chewing function and the health of the jaw joint are also assessed.",
+    "intro.cta": "Book Appointment",
+
+    "treat.kicker": "Treatments",
+    "treat.h2": "Main <em>areas of treatment.</em>",
+    "treat.aside": "Examination and treatment are provided in the areas below. You can book an appointment for details.",
+    "t1.title": "Smile Design",
+    "t1.desc": "Digital planning of the shape, colour and alignment of the teeth. The plan is reviewed together before any treatment.",
+    "t2.title": "Temporomandibular Disorders",
+    "t2.desc": "Examination and treatment of conditions such as jaw joint pain, clicking, locking and teeth grinding.",
+    "t3.title": "Snoring Appliance",
+    "t3.desc": "Preparation of intraoral appliances used for snoring and mild sleep apnoea. Suitability is determined by examination.",
+    "treat.more": "Book",
+
+    "about.kicker": "About",
+    "about.h2": "Kubilay Barış <em>Çiçek</em>",
+    "about.p1": "A specialist in prosthetic dentistry, Kubilay Barış Çiçek works in the fields of aesthetic, digital and microscopic dentistry.",
+    "about.p2": "Alongside his clinical work, he takes part in national and international congresses and organises training for fellow dentists.",
+    "about.cta": "Book Appointment",
+    "about.ig": "@dr_kubikbc",
+
+    "journey.kicker": "Treatment Process",
+    "journey.h2": "The process, from <em>examination</em> to follow-up.",
+    "j1.t": "Examination", "j1.d": "Listening to the complaint, an intraoral examination and assessment.",
+    "j2.t": "Imaging & analysis", "j2.d": "When needed, documenting the situation with X-rays, photographs and digital scanning.",
+    "j3.t": "Treatment plan", "j3.d": "Sharing the options, timing and cost.",
+    "j4.t": "Digital planning", "j4.d": "Preparing and reviewing the planned treatment in a digital environment.",
+    "j5.t": "Application", "j5.d": "Carrying out the planned treatment under the microscope.",
+    "j6.t": "Check & fit", "j6.d": "Checking the function and fit of the treatment together.",
+    "j7.t": "Follow-up", "j7.d": "Scheduled check-ups and care advice.",
+    "journey.foot": "You are informed at every stage.",
+
+    "edu.kicker": "For Fellow Dentists",
+    "edu.h2": "Training for <em>fellow dentists.</em>",
+    "edu.p": "I take part in national and international congresses and organise training for dentists. Please get in touch for programme dates and content.",
+    "ep1": "Hands-on, small-group sessions",
+    "ep2": "Aesthetic and digital dentistry content",
+    "ep3": "Information on dates and enrollment",
+    "edu.cta": "Get in touch",
+
+    "results.kicker": "Clinic",
+    "results.h2": "Images from <em>the practice.</em>",
+    "results.p": "Glimpses of the clinic and the working process.",
+    "results.cap": "Latest posts on Instagram",
+
+    "contact.kicker": "Contact",
+    "contact.h2": "Contact and <em>appointments.</em>",
+    "contact.p": "You can reach out via WhatsApp or telephone for appointments and questions.",
+    "ci.clinic": "Clinic", "ci.phone": "Phone", "ci.hours": "Working hours",
+    "ci.hours.val": "Mon–Sat · 10:00–18:00",
+    "form.title": "Appointment request",
+    "form.sub": "Leave your details and we will get back to you.",
+    "form.name": "Full name", "form.name.ph": "Your first and last name",
+    "form.phone": "Phone", "form.phone.ph": "+90 5XX XXX XX XX",
+    "form.subject": "Subject",
+    "opt1": "Smile design", "opt2": "Temporomandibular disorders", "opt3": "Snoring appliance", "opt4": "General check-up", "opt5": "Course / training",
+    "form.note": "Your note", "form.note.ph": "Briefly tell us what you'd like done.",
+    "form.submit": "Send",
+    "form.sending": "Sending…",
+    "form.success": "Thank you! Your request has been received — we'll get back to you shortly.",
+    "form.error": "Could not send. Please reach us via WhatsApp or phone.",
+    "form.kvkk": "Your details are used only to arrange an appointment and are kept confidential.",
+
+    "footer.tagline": "Aesthetic and digital dentistry. Smile design, temporomandibular disorders and snoring appliances.",
+    "footer.menu": "Menu", "footer.contact": "Contact", "footer.book": "Book appointment",
+    "footer.rights": "All rights reserved.",
+    "blog.eyebrow": "Blog",
+    "blog.title": "Articles and <em>notes.</em>",
+    "blog.sub": "Articles on dentistry, oral health and clinical notes.",
+    "blog.new": "New Post",
+    "blog.empty": "No posts yet.",
+    "blog.empty.sub": "Use the “New Post” button to add your first article.",
+    "blog.read": "Read article",
+    "blog.back": "Back to posts",
+    "blog.f.title": "Title",
+    "blog.f.titleph": "Post title",
+    "blog.f.excerpt": "Short summary (optional)",
+    "blog.f.excerptph": "A sentence or two shown on the card",
+    "blog.f.body": "Content",
+    "blog.f.bodyph": "Write your article here… A blank line starts a new paragraph.",
+    "blog.f.image": "Cover image (optional)",
+    "blog.f.imagepick": "Choose image",
+    "blog.f.save": "Publish",
+    "blog.f.update": "Update",
+    "blog.f.cancel": "Cancel",
+    "blog.edit": "Edit",
+    "blog.delete": "Delete",
+    "blog.delete.confirm": "Delete this post?",
+    "blog.manage": "Manage",
+    "blog.manage.on": "Managing",
+    "wa.float": "WhatsApp",
+  },
+};
+
+/* ============================================================ APPLY */
+let currentLang = "tr";
+function applyLang(lang) {
+  currentLang = (lang === "en") ? "en" : "tr";
+  const dict = I18N[currentLang];
+  window.I18N = I18N; window.currentLang = currentLang;
+  document.documentElement.setAttribute("lang", currentLang);
+
+  document.querySelectorAll("[data-i18n]").forEach((el) => {
+    const k = el.getAttribute("data-i18n"); if (dict[k] != null) el.textContent = dict[k];
+  });
+  document.querySelectorAll("[data-i18n-html]").forEach((el) => {
+    const k = el.getAttribute("data-i18n-html"); if (dict[k] != null) el.innerHTML = dict[k];
+  });
+  document.querySelectorAll("[data-i18n-ph]").forEach((el) => {
+    const k = el.getAttribute("data-i18n-ph"); if (dict[k] != null) el.setAttribute("placeholder", dict[k]);
+  });
+  document.querySelectorAll("[data-bind]").forEach((el) => {
+    const b = el.getAttribute("data-bind");
+    if (b === "address") el.textContent = currentLang === "en" ? CONFIG.ADDRESS_EN : CONFIG.ADDRESS_TR;
+    if (b === "phone") el.textContent = CONFIG.PHONE_DISPLAY;
+  });
+  document.querySelectorAll("[data-wa]").forEach((el) => {
+    el.setAttribute("href", waLink(el.getAttribute("data-wa"), currentLang));
+  });
+  document.querySelectorAll(".lang button").forEach((b) => {
+    b.classList.toggle("active", b.getAttribute("data-lang") === currentLang);
+  });
+  try { localStorage.setItem("kc_lang", currentLang); } catch (e) {}
+}
+
+/* ============================================================ INIT */
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll("[data-ig]").forEach((el) => el.setAttribute("href", CONFIG.INSTAGRAM_URL));
+  document.querySelectorAll("[data-tel]").forEach((el) => el.setAttribute("href", "tel:" + CONFIG.PHONE_DISPLAY.replace(/\s/g, "")));
+  const mapHref = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(CONFIG.ADDRESS_TR);
+  document.querySelectorAll("[data-map]").forEach((el) => el.setAttribute("href", mapHref));
+
+  // ---- Contact form (Formspree, AJAX) ----
+  const form = document.getElementById("appt-form");
+  if (form) {
+    form.setAttribute("action", CONFIG.FORMSPREE_ENDPOINT);
+    const statusEl = document.getElementById("form-status");
+    const showStatus = (msg, isErr) => {
+      if (!statusEl) return;
+      statusEl.textContent = msg; statusEl.hidden = false;
+      statusEl.classList.toggle("err", !!isErr);
+      statusEl.classList.toggle("ok", !isErr);
+    };
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const dict = I18N[currentLang];
+      if (!CONFIG.FORMSPREE_ENDPOINT || CONFIG.FORMSPREE_ENDPOINT.indexOf("YOUR_FORM_ID") !== -1) {
+        showStatus(dict["form.error"], true); return;
+      }
+      const btn = form.querySelector("button[type=submit]");
+      const label = btn ? btn.querySelector("[data-i18n]") : null;
+      const original = label ? label.textContent : "";
+      if (btn) btn.disabled = true;
+      if (label) label.textContent = dict["form.sending"];
+      try {
+        const res = await fetch(CONFIG.FORMSPREE_ENDPOINT, {
+          method: "POST", body: new FormData(form), headers: { "Accept": "application/json" },
+        });
+        if (res.ok) { form.reset(); showStatus(dict["form.success"], false); }
+        else { showStatus(dict["form.error"], true); }
+      } catch (err) { showStatus(dict["form.error"], true); }
+      if (btn) btn.disabled = false;
+      if (label) label.textContent = original;
+    });
+  }
+
+  document.querySelectorAll(".lang button").forEach((b) =>
+    b.addEventListener("click", () => applyLang(b.getAttribute("data-lang"))));
+
+  const menuBtn = document.getElementById("menu-toggle");
+  const mobileMenu = document.getElementById("mobile-menu");
+  if (menuBtn && mobileMenu) {
+    menuBtn.addEventListener("click", () => {
+      if (mobileMenu.hasAttribute("hidden")) mobileMenu.removeAttribute("hidden");
+      else mobileMenu.setAttribute("hidden", "");
+    });
+    mobileMenu.querySelectorAll("a").forEach((a) =>
+      a.addEventListener("click", () => mobileMenu.setAttribute("hidden", "")));
+  }
+
+  let saved = "tr";
+  try { saved = localStorage.getItem("kc_lang") || "tr"; } catch (e) {}
+  applyLang(saved);
+});

@@ -1,0 +1,58 @@
+# ===================================================================
+# Decap CMS configuration — Kubilay Barış Çiçek
+# ===================================================================
+#
+# AUTH / BACKEND  ──────────────────────────────────────────────────
+# Netlify Identity is deprecated, so this uses DecapBridge (free) for
+# login. SETUP (one time):
+#   1. Put this site in a GitHub repo and deploy it on Netlify
+#      connected to that repo (see DEPLOY-GUIDE.md).
+#   2. Go to https://decapbridge.com → sign up → "Add site":
+#        - Git provider: GitHub
+#        - Repository: <your-username>/<your-repo>
+#        - Admin URL:  https://<your-site>/admin/
+#   3. DecapBridge shows a generated "backend:" block. REPLACE the
+#      block below (from "backend:" down to the end of that section)
+#      with the one it gives you, then commit this file.
+#   4. In DecapBridge, "Manage collaborators" → invite Kubilay's email.
+#      He sets a password (or Google/Microsoft) and logs in at /admin/.
+#
+backend:
+  name: git-gateway          # DecapBridge will replace/confirm these lines
+  branch: main               # your default branch (main or master)
+
+# Where uploaded photos are stored in the repo, and the URL path used on the site.
+media_folder: "assets/blog"
+public_folder: "/assets/blog"
+
+locale: "tr"
+
+# ===================================================================
+# CONTENT
+# ===================================================================
+collections:
+  - name: "blog"
+    label: "Blog"
+    files:
+      - name: "posts"
+        label: "Yazılar"
+        file: "data/posts.json"
+        format: "json"
+        description: "Blog yazılarını buradan ekleyin, düzenleyin veya silin."
+        fields:
+          - label: "Yazılar"
+            name: "posts"
+            widget: "list"
+            label_singular: "Yazı"
+            summary: "{{fields.title}} — {{fields.date}}"
+            fields:
+              - { label: "Başlık", name: "title", widget: "string" }
+              - { label: "Tarih", name: "date", widget: "datetime", format: "YYYY-MM-DD", date_format: "YYYY-MM-DD", time_format: false, default: "" }
+              - { label: "Kapak görseli", name: "cover", widget: "image", required: false, hint: "Kartta ve yazının üstünde görünen ana fotoğraf." }
+              - label: "Fotoğraflar (galeri)"
+                name: "images"
+                widget: "list"
+                required: false
+                hint: "Yazının altında galeri olarak gösterilir. İstediğiniz kadar ekleyebilirsiniz."
+                field: { label: "Fotoğraf", name: "image", widget: "image" }
+              - { label: "İçerik (metin)", name: "body", widget: "text", hint: "Boş bir satır yeni paragraf oluşturur." }

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Blog — Kubilay Barış Çiçek</title>
+<meta name="description" content="Kubilay Barış Çiçek — diş hekimliği, ağız sağlığı ve klinik notlar üzerine yazılar." />
+<link rel="stylesheet" href="styles.css" />
+<style>
+/* ---- blog-specific ---- */
+.blog-head { padding-top: 120px; }
+.blog-head .wrap { padding-bottom: 8px; }
+.blog-head .kicker { margin-bottom: 18px; }
+.blog-head h1 { font-size: clamp(34px, 5vw, 60px); }
+.blog-head p { color: var(--fg-2); font-size: 18px; margin-top: 18px; max-width: 52ch; line-height: 1.6; }
+.blog-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 34px; flex-wrap: wrap; }
+.blog-toolbar .left { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.admin-toggle { background: none; border: 1px solid var(--line); color: var(--fg-3); font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; padding: 9px 16px; border-radius: var(--radius-pill); transition: all .2s var(--ease); }
+.admin-toggle:hover { color: var(--fg-1); border-color: var(--accent); }
+body.admin .admin-toggle { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+.btn-new { display: none; }
+body.admin .btn-new { display: inline-flex; }
+
+.blog-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; margin-top: 8px; padding-bottom: clamp(60px,10vw,120px); }
+@media (max-width: 900px) { .blog-grid { grid-template-columns: repeat(2,1fr); } }
+@media (max-width: 600px) { .blog-grid { grid-template-columns: 1fr; } }
+
+.bpost { display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); cursor: pointer; transition: transform .22s var(--ease), border-color .22s var(--ease); }
+.bpost:hover { transform: translateY(-5px); border-color: var(--line); }
+.bpost-media { aspect-ratio: 16/10; background: var(--surface-2); position: relative; overflow: hidden; }
+.bpost-media img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(1); transition: filter .5s var(--ease), transform 1.2s var(--ease); }
+.bpost:hover .bpost-media img { filter: none; transform: scale(1.04); }
+.bpost-media.noimg { display: grid; place-items: center; }
+.bpost-media.noimg::after { content: ""; width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line); background: radial-gradient(circle at 50% 40%, var(--accent-soft), transparent 70%); }
+.bpost-body { padding: 22px 22px 24px; display: flex; flex-direction: column; flex: 1; }
+.bpost-date { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--fg-3); font-weight: 700; }
+.bpost h3 { font-family: var(--body-font); font-weight: 700; font-size: 19px; letter-spacing: -.01em; line-height: 1.25; margin: 10px 0 0; color: var(--fg-1); }
+.bpost p { color: var(--fg-2); font-size: 14.5px; line-height: 1.6; margin-top: 10px; flex: 1; }
+.bpost-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 18px; }
+.bpost .read { display: inline-flex; align-items: center; gap: 7px; color: var(--accent); font-size: 12.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.bpost .read svg { width: 14px; height: 14px; transition: transform .2s var(--ease); }
+.bpost:hover .read svg { transform: translateX(4px); }
+.bpost-actions { display: none; gap: 8px; }
+body.admin .bpost-actions { display: flex; }
+.bpost-actions button { background: var(--bg-2); border: 1px solid var(--line); color: var(--fg-2); font-size: 12px; font-weight: 700; padding: 7px 12px; border-radius: 8px; transition: all .2s var(--ease); }
+.bpost-actions .edit:hover { color: var(--accent); border-color: var(--accent); }
+.bpost-actions .del:hover { color: #e57373; border-color: #e57373; }
+
+.empty { text-align: center; padding: 70px 20px; border: 1px dashed var(--line); border-radius: var(--radius); margin-bottom: 60px; }
+.empty h3 { font-family: var(--head-font); font-weight: 600; font-size: 26px; color: var(--fg-1); }
+.empty p { color: var(--fg-3); margin-top: 10px; }
+
+/* overlays */
+.overlay { position: fixed; inset: 0; z-index: 80; background: rgba(8,10,6,.72); backdrop-filter: blur(6px); display: none; align-items: flex-start; justify-content: center; padding: clamp(16px,4vw,56px); overflow-y: auto; }
+.overlay.open { display: flex; }
+.sheet { width: 100%; max-width: 720px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: clamp(24px,4vw,44px); margin: auto; }
+.sheet-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 22px; }
+.sheet-head h2 { font-family: var(--head-font); font-weight: 600; font-size: 28px; }
+.sheet-close { background: none; border: 1px solid var(--line); color: var(--fg-2); width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; flex: none; transition: all .2s var(--ease); }
+.sheet-close:hover { color: var(--fg-1); border-color: var(--accent); }
+.sheet-close svg { width: 18px; height: 18px; }
+.imgpick { display: flex; align-items: center; gap: 14px; }
+.imgpick .preview { width: 84px; height: 64px; border-radius: 8px; background: var(--bg-2); border: 1px solid var(--line); object-fit: cover; display: none; }
+.imgpick .preview.show { display: block; }
+.imgpick label.filebtn { display: inline-flex; align-items: center; gap: 8px; background: var(--bg-2); border: 1px solid var(--line); color: var(--fg-1); font-size: 13px; font-weight: 700; padding: 11px 16px; border-radius: var(--radius-pill); cursor: pointer; transition: all .2s var(--ease); }
+.imgpick label.filebtn:hover { border-color: var(--accent); color: var(--accent); }
+.imgpick input[type=file] { display: none; }
+.imgpick .clearimg { background: none; border: none; color: var(--fg-3); font-size: 13px; text-decoration: underline; cursor: pointer; display: none; }
+.imgpick .clearimg.show { display: inline; }
+.sheet-actions { display: flex; gap: 12px; margin-top: 8px; }
+.sheet-actions .btn { flex: none; }
+
+/* reader */
+.reader-sheet { max-width: 760px; }
+.reader-cover { border-radius: var(--radius); overflow: hidden; aspect-ratio: 16/9; margin-bottom: 28px; border: 1px solid var(--line); }
+.reader-cover img { width: 100%; height: 100%; object-fit: cover; }
+.reader-date { font-size: 12.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); font-weight: 700; }
+.reader-sheet h1 { font-family: var(--head-font); font-weight: 600; font-size: clamp(28px,4vw,44px); line-height: 1.1; margin: 14px 0 26px; }
+.reader-body p { color: var(--fg-1); font-size: 17px; line-height: 1.75; margin-bottom: 18px; }
+.reader-back { margin-top: 30px; }
+/* reader photo gallery */
+.reader-gallery { margin-top: 30px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+.reader-gallery .rg-item { border-radius: var(--radius); overflow: hidden; aspect-ratio: 4/3; background: var(--surface-2); border: 1px solid var(--line); }
+.reader-gallery .rg-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 1s var(--ease); }
+.reader-gallery .rg-item:hover img { transform: scale(1.04); }
+@media (max-width: 540px) { .reader-gallery { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body id="top">
+
+<!-- ============ NAV ============ -->
+<header class="nav">
+  <div class="wrap nav-inner">
+    <a class="nav-logo" href="index.html#top" aria-label="Kubilay Çiçek"><img src="assets/logo-white.png" alt="Kubilay Çiçek" /></a>
+    <nav class="nav-links">
+      <a href="index.html#tedaviler" data-i18n="nav.treatments">Tedaviler</a>
+      <a href="index.html#hakkimda" data-i18n="nav.about">Hakkımda</a>
+      <a href="index.html#surec" data-i18n="nav.journey">Süreç</a>
+      <a href="index.html#egitimler" data-i18n="nav.courses">Eğitimler</a>
+      <a href="blog.html" class="active" data-i18n="nav.blog">Blog</a>
+      <a href="index.html#iletisim" data-i18n="nav.contact">İletişim</a>
+    </nav>
+    <div class="nav-right">
+      <div class="nav-social">
+        <a data-ig href="#" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg></a>
+        <a data-wa="appointment" target="_blank" rel="noopener" aria-label="WhatsApp"><svg class="wa-ic" viewBox="0 0 32 32" fill="currentColor"><path d="M16.04 4C9.96 4 5 8.93 5 15c0 2.13.62 4.11 1.69 5.79L5 28l7.4-1.65A11.1 11.1 0 0 0 16.04 26C22.12 26 27 21.07 27 15S22.12 4 16.04 4zm0 19.8c-1.6 0-3.16-.43-4.52-1.25l-.32-.19-3.9.87.83-3.8-.21-.33A8.74 8.74 0 0 1 7.3 15c0-4.83 3.92-8.76 8.74-8.76 4.82 0 8.74 3.93 8.74 8.76 0 4.83-3.92 8.8-8.74 8.8z"/></svg></a>
+      </div>
+      <div class="lang" role="group" aria-label="Language">
+        <button data-lang="tr" class="active">TR</button>
+        <button data-lang="en">EN</button>
+      </div>
+      <button id="menu-toggle" class="nav-toggle" aria-label="Menu"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+    </div>
+  </div>
+  <div id="mobile-menu" class="mobile-menu" hidden>
+    <a href="index.html#tedaviler" data-i18n="nav.treatments">Tedaviler</a>
+    <a href="index.html#hakkimda" data-i18n="nav.about">Hakkımda</a>
+    <a href="index.html#surec" data-i18n="nav.journey">Süreç</a>
+    <a href="index.html#egitimler" data-i18n="nav.courses">Eğitimler</a>
+    <a href="blog.html" data-i18n="nav.blog">Blog</a>
+    <a href="index.html#iletisim" data-i18n="nav.contact">İletişim</a>
+  </div>
+</header>
+
+<!-- ============ BLOG HEAD ============ -->
+<section class="section blog-head">
+  <div class="wrap">
+    <div class="kicker line" data-i18n="blog.eyebrow">Blog</div>
+    <h1 class="serif" data-i18n-html="blog.title">Yazılar ve <em>notlar.</em></h1>
+    <p data-i18n="blog.sub">Diş hekimliği, ağız sağlığı ve klinik notlar üzerine yazılar.</p>
+    <div class="blog-toolbar">
+      <div class="left">
+        <a class="admin-toggle" href="admin/" data-i18n="blog.manage">Yönetim</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ POSTS ============ -->
+<section class="section" style="padding-top:0;">
+  <div class="wrap">
+    <div class="blog-grid" id="posts"></div>
+    <div class="empty" id="empty" hidden>
+      <h3 data-i18n="blog.empty">Henüz yazı eklenmedi.</h3>
+      <p data-i18n="blog.empty.sub">İlk yazınızı eklemek için "Yeni Yazı" düğmesini kullanın.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <img src="assets/logo-white.png" alt="Kubilay Çiçek" />
+        <p data-i18n="footer.tagline">Estetik ve dijital diş hekimliği. Gülüş tasarımı, çene eklem bozuklukları ve horlama protezi.</p>
+      </div>
+      <div class="footer-col">
+        <h5 data-i18n="footer.menu">Menü</h5>
+        <a href="index.html#tedaviler" data-i18n="nav.treatments">Tedaviler</a>
+        <a href="index.html#hakkimda" data-i18n="nav.about">Hakkımda</a>
+        <a href="blog.html" data-i18n="nav.blog">Blog</a>
+        <a href="index.html#egitimler" data-i18n="nav.courses">Eğitimler</a>
+      </div>
+      <div class="footer-col">
+        <h5 data-i18n="footer.contact">İletişim</h5>
+        <a data-wa="appointment" target="_blank" rel="noopener" data-i18n="footer.book">Randevu al</a>
+        <a href="index.html#iletisim" data-bind="address">Bursa</a>
+        <a data-tel href="tel:" data-bind="phone">+90 506 112 91 72</a>
+        <a data-ig href="#" target="_blank" rel="noopener">@dr_kubikbc</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 Kubilay Barış Çiçek. <span data-i18n="footer.rights">Tüm hakları saklıdır.</span></p>
+      <div class="footer-social">
+        <a data-ig href="#" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg></a>
+        <a data-wa="appointment" target="_blank" rel="noopener" aria-label="WhatsApp"><svg class="wa-ic" viewBox="0 0 32 32" fill="currentColor"><path d="M16.04 4C9.96 4 5 8.93 5 15c0 2.13.62 4.11 1.69 5.79L5 28l7.4-1.65A11.1 11.1 0 0 0 16.04 26C22.12 26 27 21.07 27 15S22.12 4 16.04 4zm0 19.8c-1.6 0-3.16-.43-4.52-1.25l-.32-.19-3.9.87.83-3.8-.21-.33A8.74 8.74 0 0 1 7.3 15c0-4.83 3.92-8.76 8.74-8.76 4.82 0 8.74 3.93 8.74 8.76 0 4.83-3.92 8.8-8.74 8.8z"/></svg></a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- ============ READER OVERLAY ============ -->
+<div class="overlay" id="reader">
+  <div class="sheet reader-sheet">
+    <div class="sheet-head" style="margin-bottom:18px;">
+      <span></span>
+      <button class="sheet-close" data-close="reader" aria-label="Kapat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div id="reader-body"></div>
+    <button class="btn btn-outline reader-back" data-close="reader"><span data-i18n="blog.back">Yazılara dön</span></button>
+  </div>
+</div>
+
+<script src="i18n.js"></script>
+<script src="blog.js"></script>
+</body>
+</html>

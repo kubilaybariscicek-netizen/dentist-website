@@ -1,0 +1,11 @@
+{
+  "posts": [
+    {
+      "title": "Gülüş tasarımında doğal sonuç",
+      "date": "2026-06-17",
+      "cover": "assets/treat-smile.jpg",
+      "images": [],
+      "body": "Bu, blogunuzdaki örnek bir yazıdır. İçerik yönetim panelinden (site adresinizin sonuna /admin ekleyerek) bu yazıyı düzenleyebilir, silebilir veya yeni yazılar ekleyebilirsiniz.\n\nHer yazıya bir başlık, metin ve dilediğiniz kadar fotoğraf ekleyebilirsiniz. Boş bir satır bırakmak yeni bir paragraf oluşturur."
+    }
+  ]
+}
