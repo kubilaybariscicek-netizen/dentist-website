@@ -393,5 +393,9 @@ button { font-family: inherit; cursor: pointer; }
 .faq-item[open] .faq-chev { transform: rotate(180deg); }
 .faq-a { padding: 0 4px 24px; }
 .faq-a p { color: var(--fg-2); font-size: 16px; line-height: 1.7; max-width: 70ch; }
+.faq-more { text-align: center; margin-top: 36px; }
+.faq-more-link { display: inline-flex; align-items: center; gap: 9px; font-size: 13px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); padding: 10px 4px; transition: gap .2s var(--ease); }
+.faq-more-link svg { width: 16px; height: 16px; }
+.faq-more-link:hover { gap: 14px; }
 
 [hidden] { display: none !important; }
