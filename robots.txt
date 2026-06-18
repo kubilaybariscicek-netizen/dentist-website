@@ -1,0 +1,26 @@
+# Allow all search engines and AI assistants to read the site.
+User-agent: *
+Allow: /
+
+# Explicitly welcome AI crawlers (for AI-engine visibility)
+User-agent: GPTBot
+Allow: /
+User-agent: OAI-SearchBot
+Allow: /
+User-agent: ChatGPT-User
+Allow: /
+User-agent: ClaudeBot
+Allow: /
+User-agent: Claude-Web
+Allow: /
+User-agent: PerplexityBot
+Allow: /
+User-agent: Google-Extended
+Allow: /
+User-agent: Bingbot
+Allow: /
+
+# Admin (content editor) — no need to index
+Disallow: /admin/
+
+Sitemap: https://kubilaybariscicek.com/sitemap.xml
