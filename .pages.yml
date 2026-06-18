@@ -1,0 +1,39 @@
+# ===================================================================
+# Pages CMS configuration — Kubilay Barış Çiçek
+# Edit content at https://app.pagescms.org (sign in with GitHub, install
+# the Pages CMS GitHub App on this repo). Invite Kubilay by email under
+# Settings → Collaborators — he does NOT need a GitHub account.
+# ===================================================================
+
+# Where uploaded photos are committed, and the path used on the site.
+media:
+  input: assets/blog
+  output: /assets/blog
+
+content:
+  - name: posts
+    label: Blog Yazıları
+    type: file
+    path: data/posts.json
+    format: json
+    list: true
+    fields:
+      - name: title
+        label: Başlık
+        type: string
+      - name: date
+        label: Tarih
+        type: date
+        options:
+          format: yyyy-MM-dd
+      - name: cover
+        label: Kapak görseli
+        type: image
+      - name: images
+        label: Fotoğraflar (galeri)
+        type: image
+        list: true
+      - name: body
+        label: İçerik (metin)
+        type: text
+        description: "Boş bir satır yeni paragraf oluşturur."
